@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Packliste</title>
+
+  <!-- Web-App / iPhone Home Screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Packliste" />
+  <meta name="theme-color" content="#12386b" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+  <style>
+    :root {
+      --bg: #eef3f8;
+      --card: rgba(255, 255, 255, 0.94);
+      --card-strong: #ffffff;
+      --text: #142033;
+      --muted: #667085;
+      --border: rgba(15, 23, 42, 0.08);
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --accent: #12386b;
+      --accent-2: #1a4b8f;
+      --accent-3: #0d274c;
+      --accent-soft: rgba(18, 56, 107, 0.1);
+      --success: #17976b;
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: "Avenir Next", "SF Pro Display", "Segoe UI", Inter, ui-sans-serif, system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(18, 56, 107, 0.14), transparent 24%),
+        radial-gradient(circle at top right, rgba(26, 75, 143, 0.10), transparent 22%),
+        linear-gradient(180deg, #f6f9fc 0%, #edf2f8 100%);
+      min-height: 100vh;
+      padding:
+        max(18px, env(safe-area-inset-top))
+        max(14px, env(safe-area-inset-right))
+        max(40px, env(safe-area-inset-bottom))
+        max(14px, env(safe-area-inset-left));
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    .app {
+      max-width: 1260px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      margin-bottom: 20px;
+      padding: 24px 22px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, var(--accent-3), var(--accent));
+      color: white;
+      box-shadow: 0 22px 48px rgba(13, 39, 76, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .trip-icon-badge {
+      width: 50px;
+      height: 50px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      font-weight: 800;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 760px;
+      color: rgba(255, 255, 255, 0.90);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 372px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .panel,
+    .list-panel {
+      background: var(--card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .panel {
+      padding: 22px;
+      position: sticky;
+      top: 14px;
+    }
+
+    .panel h2,
+    .list-panel h2 {
+      margin: 0 0 12px 0;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      font-weight: 750;
+    }
+
+    .panel-section + .panel-section {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .days-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .days-badge {
+      min-width: 78px;
+      text-align: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 800;
+      border-radius: 999px;
+      padding: 9px 14px;
+      font-size: 15px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    select,
+    input[type="text"] {
+      width: 100%;
+      border: 1px solid rgba(15, 23, 42, 0.10);
+      background: rgba(255, 255, 255, 0.98);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 15px;
+      outline: none;
+      transition: 0.2s ease;
+    }
+
+    select:focus,
+    input[type="text"]:focus {
+      border-color: rgba(18, 56, 107, 0.35);
+      box-shadow: 0 0 0 4px rgba(18, 56, 107, 0.09);
+    }
+
+    .print-row {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 750;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    button:hover { transform: translateY(-1px); }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      box-shadow: 0 12px 24px rgba(18, 56, 107, 0.22);
+    }
+
+    button.secondary {
+      background: white;
+      color: var(--text);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    button.print {
+      background: linear-gradient(135deg, #0f2c57, #173e76);
+      color: white;
+      box-shadow: 0 12px 24px rgba(15, 44, 87, 0.20);
+    }
+
+    .toggle-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .toggle-btn {
+      width: 100%;
+      background: white;
+      color: var(--text);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      box-shadow: none;
+      min-height: 56px;
+      text-align: center;
+      line-height: 1.3;
+      padding: 14px 12px;
+      word-break: break-word;
+      white-space: normal;
+    }
+
+    .toggle-btn.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      box-shadow: 0 12px 24px rgba(18, 56, 107, 0.18);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .stat {
+      background: var(--card-strong);
+      border: 1px solid rgba(15, 23, 42, 0.07);
+      border-radius: 18px;
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .stat .value {
+      font-size: 22px;
+      font-weight: 850;
+      margin-bottom: 3px;
+      color: var(--accent-3);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .stat .label {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .list-panel { padding: 20px; }
+
+    .list-heading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .list-heading-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      color: var(--accent-3);
+      background: var(--accent-soft);
+    }
+
+    .symbol-icon {
+      width: 22px;
+      height: 22px;
+      display: block;
+      color: currentColor;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    .category-card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(15, 23, 42, 0.07);
+      border-radius: 22px;
+      padding: 16px;
+    }
+
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .category-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .category-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-soft);
+      color: var(--accent);
+      flex: 0 0 auto;
+    }
+
+    .category-title {
+      margin: 0;
+      font-size: 17px;
+      color: var(--accent-3);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .category-count {
+      font-size: 12px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex: 0 0 auto;
+    }
+
+    .item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .item {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(246, 249, 253, 0.96);
+      transition: 0.18s ease;
+    }
+
+    .item:hover { background: rgba(239, 244, 251, 1); }
+
+    .item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--success);
+      cursor: pointer;
+      flex: 0 0 auto;
+      margin-top: 1px;
+    }
+
+    .item span {
+      flex: 1;
+      font-size: 14.5px;
+      line-height: 1.4;
+    }
+
+    .item.checked span {
+      text-decoration: line-through;
+      color: #98a2b3;
+    }
+
+    .pill {
+      flex: 0 0 auto;
+      font-size: 11px;
+      font-weight: 700;
+      color: #0d6b5f;
+      background: rgba(21, 154, 108, 0.12);
+      border-radius: 999px;
+      padding: 4px 8px;
+    }
+
+    .add-grid {
+      display: grid;
+      grid-template-columns: 1fr 140px;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .full-width { width: 100%; }
+
+    .summary-box {
+      border-radius: 16px;
+      padding: 14px;
+      background: linear-gradient(135deg, rgba(18, 56, 107, 0.08), rgba(26, 75, 143, 0.05));
+      border: 1px solid rgba(18, 56, 107, 0.1);
+      font-size: 14px;
+      line-height: 1.55;
+      color: #314158;
+    }
+
+    .empty {
+      padding: 20px;
+      color: var(--muted);
+      text-align: center;
+      background: rgba(248, 250, 252, 0.85);
+      border-radius: 16px;
+    }
+
+    @media (max-width: 1180px) {
+      .layout {
+        grid-template-columns: 348px 1fr;
+        gap: 24px;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding:
+          max(10px, env(safe-area-inset-top))
+          max(8px, env(safe-area-inset-right))
+          max(24px, env(safe-area-inset-bottom))
+          max(8px, env(safe-area-inset-left));
+      }
+
+      .app {
+        max-width: 100%;
+      }
+
+      .hero {
+        padding: 16px 14px;
+        border-radius: 20px;
+        margin-bottom: 14px;
+      }
+
+      .hero h1 {
+        font-size: 28px;
+      }
+
+      .hero p {
+        font-size: 14px;
+      }
+
+      .trip-icon-badge {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+      }
+
+      .panel,
+      .list-panel {
+        border-radius: 18px;
+        padding: 14px;
+      }
+
+      .panel,
+      .list-panel,
+      .category-card,
+      .stat {
+        box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+      }
+
+      .add-grid,
+      .category-grid,
+      .toggle-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .stat {
+        padding: 11px 12px;
+        border-radius: 16px;
+      }
+
+      .stat:last-child {
+        grid-column: 1 / -1;
+      }
+
+      .stat .value {
+        font-size: 19px;
+        margin-bottom: 2px;
+      }
+
+      .stat .label {
+        font-size: 11px;
+      }
+
+      .days-badge {
+        min-width: 70px;
+        font-size: 14px;
+      }
+
+      .toggle-btn {
+        min-height: 50px;
+        font-size: 15px;
+        padding: 13px 14px;
+      }
+
+      .print-row {
+        gap: 9px;
+      }
+
+      .item {
+        align-items: flex-start;
+        padding: 11px 10px;
+      }
+
+      .item span {
+        font-size: 15px;
+      }
+
+      .item input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+      }
+
+      .category-card {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      .category-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .category-count {
+        margin-left: 44px;
+      }
+
+      .list-heading {
+        margin-bottom: 12px;
+      }
+
+      .list-heading-icon,
+      .category-icon {
+        width: 32px;
+        height: 32px;
+      }
+
+      .summary-box {
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .hero h1 {
+        font-size: 25px;
+      }
+
+      .hero p {
+        font-size: 13.5px;
+      }
+
+      .panel,
+      .list-panel {
+        padding: 13px;
+      }
+
+      .stats {
+        gap: 8px;
+      }
+
+      .stat {
+        padding: 10px 11px;
+      }
+
+      .stat .value {
+        font-size: 18px;
+      }
+
+      .stat .label {
+        font-size: 10.5px;
+      }
+
+      .toggle-btn {
+        min-height: 48px;
+        font-size: 14.5px;
+      }
+
+      .item span {
+        font-size: 14.5px;
+      }
+    }
+
+    @media print {
+      body {
+        background: white !important;
+        padding: 0;
+      }
+
+      .hero,
+      .panel,
+      .stats {
+        display: none !important;
+      }
+
+      .app {
+        max-width: none;
+        margin: 0;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      .list-panel {
+        box-shadow: none;
+        border: none;
+        border-radius: 0;
+        padding: 0;
+        background: white;
+      }
+
+      .list-heading {
+        margin-bottom: 16px;
+      }
+
+      .list-heading-icon {
+        background: #eef3f8;
+      }
+
+      .category-grid {
+        display: block;
+      }
+
+      .category-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        margin-bottom: 18px;
+        border: 1px solid #d0d7e2;
+        box-shadow: none;
+        background: white;
+      }
+
+      .item {
+        background: white;
+        border: 1px solid #eef2f7;
+      }
+
+      .pill {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="hero">
+      <div class="hero-top">
+        <div class="trip-icon-badge" id="heroTripIcon"></div>
+        <h1>Packliste für deine Reise</h1>
+      </div>
+      <p>
+        Wähle zusätzliche Optionen und Anzahl Tage aus. Die Liste passt sich automatisch an,
+        bleibt im Browser gespeichert und lässt sich sauber drucken.
+      </p>
+    </section>
+
+    <div class="layout">
+      <aside class="panel">
+        <div class="panel-section">
+          <h2>Einstellungen</h2>
+
+          <label class="label" for="days">Anzahl Tage</label>
+          <div class="days-row">
+            <div class="days-badge"><span id="daysValue">7</span> Tage</div>
+          </div>
+          <input id="days" type="range" min="1" max="21" value="7" />
+
+          <div style="height: 14px;"></div>
+
+          <label class="label">Zusätzliche Optionen</label>
+          <div class="toggle-grid" id="optionButtons">
+            <button type="button" class="toggle-btn" data-option="ferienhaus">Ferienhaus</button>
+            <button type="button" class="toggle-btn" data-option="schlechtwetter">Schlechtwetter</button>
+            <button type="button" class="toggle-btn" data-option="baden">Baden / Strand</button>
+            <button type="button" class="toggle-btn" data-option="winter">Herbst / Winter</button>
+            <button type="button" class="toggle-btn" data-option="sport">Sportklamotten</button>
+          </div>
+
+          <div class="print-row">
+            <button class="secondary" id="resetBtn">Zurücksetzen</button>
+            <button class="print" id="printBtn">Drucken</button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h2>Eigenen Eintrag hinzufügen</h2>
+
+          <div class="add-grid">
+            <input id="customItemInput" type="text" placeholder="z. B. Sonnenbrille" />
+            <select id="customCategory">
+              <option value="Dokumente">Dokumente</option>
+              <option value="Technik">Technik</option>
+              <option value="Hygieneartikel">Hygieneartikel</option>
+              <option value="Kleidung">Kleidung</option>
+              <option value="Sonstiges">Sonstiges</option>
+            </select>
+          </div>
+
+          <button class="primary full-width" id="addItemBtn">Eintrag hinzufügen</button>
+        </div>
+
+        <div class="panel-section">
+          <h2>Übersicht</h2>
+          <div class="summary-box" id="summaryBox"></div>
+        </div>
+      </aside>
+
+      <main class="list-panel">
+        <div class="stats">
+          <div class="stat">
+            <div class="value" id="totalItems">0</div>
+            <div class="label">Einträge total</div>
+          </div>
+          <div class="stat">
+            <div class="value" id="checkedItems">0</div>
+            <div class="label">Abgehakt</div>
+          </div>
+          <div class="stat">
+            <div class="value" id="progressPercent">0%</div>
+            <div class="label">Fortschritt</div>
+          </div>
+        </div>
+
+        <div class="list-heading">
+          <div class="list-heading-icon" id="listTripIcon"></div>
+          <h2 style="margin:0;">Deine Packliste</h2>
+        </div>
+
+        <div id="listContainer"></div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "packliste-schoen-v10";
+
+    function iconHouse() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 10.5 12 3l9 7.5" />
+          <path d="M5.5 9.5V20h13V9.5" />
+          <path d="M10 20v-5h4v5" />
+        </svg>`;
+    }
+
+    function iconCloudRain() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7 18a4 4 0 1 1 .7-7.94A5 5 0 0 1 18 12h.5a2.5 2.5 0 0 1 0 5H7Z" />
+          <path d="M9 19l-1 2" />
+          <path d="M13 19l-1 2" />
+          <path d="M17 19l-1 2" />
+        </svg>`;
+    }
+
+    function iconBeach() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 4c3.5 0 6 2.5 6 6H6c0-3.5 2.5-6 6-6Z" />
+          <path d="M12 10v10" />
+          <path d="M7 20h10" />
+          <path d="M4 14c2 .5 4 .5 6 0 2-.5 4-.5 6 0 2 .5 4 .5 4 .5" />
+        </svg>`;
+    }
+
+    function iconMountain() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 20 10 8l4 6 2-3 5 9" />
+          <path d="M8.5 10.5 10 8l1.5 2.5" />
+        </svg>`;
+    }
+
+    function iconDumbbell() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 10v4" />
+          <path d="M6 8v8" />
+          <path d="M9 10v4" />
+          <path d="M15 10v4" />
+          <path d="M18 8v8" />
+          <path d="M21 10v4" />
+          <path d="M9 12h6" />
+        </svg>`;
+    }
+
+    function iconId() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <circle cx="8" cy="12" r="2" />
+          <path d="M13 10h4M13 14h4" />
+        </svg>`;
+    }
+
+    function iconTech() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="4" y="5" width="16" height="11" rx="2" />
+          <path d="M8 19h8" />
+          <path d="M10 16v3M14 16v3" />
+        </svg>`;
+    }
+
+    function iconBottle() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10 3h4" />
+          <path d="M11 3v4l-3 4v8a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-8l-3-4V3" />
+        </svg>`;
+    }
+
+    function iconShirt() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m9 4 3 2 3-2 4 3-2 4-2-1v10H9V10L7 11 5 7l4-3Z" />
+        </svg>`;
+    }
+
+    function iconBag() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 8h12l-1 11H7L6 8Z" />
+          <path d="M9 8a3 3 0 0 1 6 0" />
+        </svg>`;
+    }
+
+    const optionMeta = {
+      ferienhaus: { label: "Ferienhaus", icon: iconHouse },
+      schlechtwetter: { label: "Schlechtwetter", icon: iconCloudRain },
+      baden: { label: "Baden / Strand", icon: iconBeach },
+      winter: { label: "Herbst / Winter", icon: iconMountain },
+      sport: { label: "Sportklamotten", icon: iconDumbbell }
+    };
+
+    const categoryIcons = {
+      "Dokumente": iconId,
+      "Technik": iconTech,
+      "Hygieneartikel": iconBottle,
+      "Kleidung": iconShirt,
+      "Sonstiges": iconBag
+    };
+
+    const baseTemplates = {
+      "Dokumente": [
+        "Ausweis / Reisepass",
+        "Portemonnaie",
+        "Buchungsunterlagen",
+        "Krankenkassenkarte"
+      ],
+      "Technik": [
+        "Handy",
+        "Ladekabel",
+        "Powerbank"
+      ],
+      "Hygieneartikel": [
+        "Zahnbürste (inkl. Ladekabel)",
+        "Zahnpasta",
+        "Zahnseide",
+        "Gesichtscreme",
+        "Sonnencreme",
+        "Trockenrasierer (inkl. Ladekabel)",
+        "Nassrasierer",
+        "Rasierschaum",
+        "Deoroller",
+        "Shampoo",
+        "Duschgel",
+        "Parfüm",
+        "Wattestäbchen",
+        "Nagelpflegeset",
+        "Haarschneider (inkl. Ladekabel)"
+      ],
+      "Kleidung": [
+        "Hosen (lang/kurz)",
+        "T-Shirts",
+        "Unterwäsche",
+        "Socken",
+        "Jäckchen (Fix 1-2)",
+        "Pyjama"
+      ],
+      "Sonstiges": [
+        "Sonnenbrille",
+        "Sonnenhut",
+        "Medikamente",
+        "Buch oder E-Reader"
+      ]
+    };
+
+    const optionTemplates = {
+      schlechtwetter: {
+        "Kleidung": [
+          "Regenjacke"
+        ],
+        "Sonstiges": [
+          "Schirm"
+        ]
+      },
+      baden: {
+        "Kleidung": [
+          "Badehosen",
+          "Badelatschen"
+        ],
+        "Hygieneartikel": [
+          "After Sun"
+        ]
+      },
+      winter: {
+        "Kleidung": [
+          "Handschuhe",
+          "Schal",
+          "Mütze",
+          "Pullover/Fleece"
+        ]
+      },
+      sport: {
+        "Kleidung": [
+          "Mammut Sporttasche",
+          "Lange Trainingshose",
+          "Kurze Trainingshose",
+          "Sport-Shirts"
+        ],
+        "Sonstiges": [
+          "Gym Handtuch",
+          "Trinkflasche"
+        ]
+      }
+    };
+
+    const stateDefaults = {
+      days: 7,
+      activeOptions: [],
+      items: [],
+      customItems: []
+    };
+
+    const daysInput = document.getElementById("days");
+    const daysValue = document.getElementById("daysValue");
+    const resetBtn = document.getElementById("resetBtn");
+    const addItemBtn = document.getElementById("addItemBtn");
+    const printBtn = document.getElementById("printBtn");
+    const customItemInput = document.getElementById("customItemInput");
+    const customCategorySelect = document.getElementById("customCategory");
+    const listContainer = document.getElementById("listContainer");
+    const summaryBox = document.getElementById("summaryBox");
+    const totalItemsEl = document.getElementById("totalItems");
+    const checkedItemsEl = document.getElementById("checkedItems");
+    const progressPercentEl = document.getElementById("progressPercent");
+    const heroTripIcon = document.getElementById("heroTripIcon");
+    const listTripIcon = document.getElementById("listTripIcon");
+    const optionButtonsWrap = document.getElementById("optionButtons");
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return { ...stateDefaults };
+
+      try {
+        const parsed = JSON.parse(raw);
+        return {
+          ...stateDefaults,
+          ...parsed,
+          activeOptions: Array.isArray(parsed.activeOptions) ? parsed.activeOptions : [],
+          customItems: Array.isArray(parsed.customItems) ? parsed.customItems : [],
+          items: Array.isArray(parsed.items) ? parsed.items : []
+        };
+      } catch {
+        return { ...stateDefaults };
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function createId() {
+      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function getPantsCount(days) {
+      return Math.floor((days - 1) / 4) + 1;
+    }
+
+    function getTopCount(days) {
+      return days;
+    }
+
+    function getUnderwearCount(days) {
+      return Math.min(days, 21);
+    }
+
+    function mergeInto(target, source) {
+      for (const [category, items] of Object.entries(source)) {
+        if (!target[category]) target[category] = [];
+        for (const item of items) {
+          if (!target[category].includes(item)) target[category].push(item);
+        }
+      }
+    }
+
+    function removeItem(grouped, category, label) {
+      if (!grouped[category]) return;
+      grouped[category] = grouped[category].filter(item => item !== label);
+    }
+
+    function buildGroupedList(days, activeOptions) {
+      const grouped = {};
+
+      for (const [category, items] of Object.entries(baseTemplates)) {
+        grouped[category] = [...items];
+      }
+
+      if (activeOptions.includes("ferienhaus")) {
+        grouped["Hygieneartikel"] = [
+          "Sonnencreme",
+          "Haarschneider (inkl. Ladekabel)"
+        ];
+
+        removeItem(grouped, "Dokumente", "Buchungsunterlagen");
+      }
+
+      for (const option of activeOptions) {
+        if (option === "ferienhaus") continue;
+        if (optionTemplates[option]) {
+          mergeInto(grouped, optionTemplates[option]);
+        }
+      }
+
+      const pantsCount = getPantsCount(days);
+      const topCount = getTopCount(days);
+      const underwearCount = getUnderwearCount(days);
+
+      if (!grouped["Kleidung"]) grouped["Kleidung"] = [];
+      const clothes = grouped["Kleidung"];
+
+      function replaceIfStartsWith(prefix, newValue) {
+        const index = clothes.findIndex(item => item.startsWith(prefix));
+        if (index !== -1) clothes[index] = newValue;
+      }
+
+      replaceIfStartsWith("Hosen", `Hosen (lang/kurz) (${pantsCount}x)`);
+      replaceIfStartsWith("T-Shirts", `T-Shirts (${topCount}x)`);
+      replaceIfStartsWith("Unterwäsche", `Unterwäsche (${underwearCount}x)`);
+      replaceIfStartsWith("Socken", `Socken (${underwearCount}x)`);
+
+      const sportIndex = clothes.findIndex(item => item.startsWith("Sport-Shirts"));
+      if (sportIndex !== -1) {
+        clothes[sportIndex] = `Sport-Shirts (${Math.max(2, Math.ceil(days / 3))}x)`;
+      }
+
+      return grouped;
+    }
+
+    function flattenGrouped(grouped, customItems = []) {
+      const flat = [];
+      for (const [category, items] of Object.entries(grouped)) {
+        for (const label of items) {
+          flat.push({ id: createId(), category, label, checked: false, custom: false });
+        }
+      }
+      for (const item of customItems) flat.push(item);
+      return flat;
+    }
+
+    function generateState(days, activeOptions, customItems = []) {
+      const grouped = buildGroupedList(days, activeOptions);
+      return { days, activeOptions, customItems, items: flattenGrouped(grouped, customItems) };
+    }
+
+    function regeneratePreservingChecks() {
+      const previousChecks = new Map(state.items.map(item => [item.label + "||" + item.category, item.checked]));
+      const grouped = buildGroupedList(state.days, state.activeOptions);
+      const rebuilt = flattenGrouped(grouped, state.customItems || []).map(item => {
+        const key = item.label + "||" + item.category;
+        return {
+          ...item,
+          checked: previousChecks.get(key) || false
+        };
+      });
+
+      state.items = rebuilt;
+      saveState();
+      render();
+    }
+
+    function regroupItems(items) {
+      const grouped = {};
+      for (const item of items) {
+        if (!grouped[item.category]) grouped[item.category] = [];
+        grouped[item.category].push(item);
+      }
+      return grouped;
+    }
+
+    function updateTripIcons() {
+      const active = state.activeOptions || [];
+      let icon = iconBag;
+
+      if (active.includes("ferienhaus")) {
+        icon = iconHouse;
+      } else if (active.includes("baden")) {
+        icon = iconBeach;
+      } else if (active.includes("winter")) {
+        icon = iconMountain;
+      } else if (active.includes("sport")) {
+        icon = iconDumbbell;
+      } else if (active.includes("schlechtwetter")) {
+        icon = iconCloudRain;
+      }
+
+      heroTripIcon.innerHTML = icon();
+      listTripIcon.innerHTML = icon();
+    }
+
+    function updateSummary() {
+      const labels = (state.activeOptions || []).map(key => optionMeta[key]?.label).filter(Boolean);
+
+      summaryBox.innerHTML = `
+        <strong>${state.days} Tage</strong> Reise.<br>
+        ${labels.length ? `Aktive Optionen: <strong>${escapeHtml(labels.join(", "))}</strong>.<br>` : `Keine Zusatzoptionen ausgewählt.<br>`}
+        Die Packliste wurde an Reisedauer und ausgewählte Zusatzoptionen angepasst.<br>
+        Über den Druckknopf kannst du dir eine saubere Papieransicht ausgeben lassen.
+      `;
+    }
+
+    function updateStats() {
+      const total = state.items.length;
+      const checked = state.items.filter(item => item.checked).length;
+      const progress = total > 0 ? Math.round((checked / total) * 100) : 0;
+      totalItemsEl.textContent = total;
+      checkedItemsEl.textContent = checked;
+      progressPercentEl.textContent = `${progress}%`;
+    }
+
+    function renderOptionButtons() {
+      optionButtonsWrap.querySelectorAll("[data-option]").forEach(button => {
+        const option = button.dataset.option;
+        button.classList.toggle("active", state.activeOptions.includes(option));
+      });
+    }
+
+    function renderList() {
+      const grouped = regroupItems(state.items);
+      const categories = Object.entries(grouped);
+
+      if (categories.length === 0) {
+        listContainer.innerHTML = `<div class="empty">Noch keine Einträge vorhanden.</div>`;
+        return;
+      }
+
+      listContainer.innerHTML = `
+        <div class="category-grid">
+          ${categories.map(([category, items]) => `
+            <section class="category-card">
+              <div class="category-header">
+                <div class="category-title-wrap">
+                  <div class="category-icon">${(categoryIcons[category] || iconBag)()}</div>
+                  <h3 class="category-title">${escapeHtml(category)}</h3>
+                </div>
+                <div class="category-count">${items.length} Einträge</div>
+              </div>
+              <div class="item-list">
+                ${items.map(item => `
+                  <label class="item ${item.checked ? "checked" : ""}">
+                    <input type="checkbox" data-id="${item.id}" ${item.checked ? "checked" : ""} />
+                    <span>${escapeHtml(item.label)}</span>
+                    ${item.custom ? `<span class="pill">eigen</span>` : ""}
+                  </label>
+                `).join("")}
+              </div>
+            </section>
+          `).join("")}
+        </div>
+      `;
+
+      listContainer.querySelectorAll('input[type="checkbox"][data-id]').forEach(checkbox => {
+        checkbox.addEventListener("change", (event) => {
+          const id = event.target.dataset.id;
+          const item = state.items.find(entry => entry.id === id);
+          if (!item) return;
+          item.checked = event.target.checked;
+          saveState();
+          render();
+        });
+      });
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function render() {
+      daysInput.value = state.days;
+      daysValue.textContent = state.days;
+      renderOptionButtons();
+      updateTripIcons();
+      updateSummary();
+      updateStats();
+      renderList();
+    }
+
+    let state = loadState();
+
+    if (!state.items.length) {
+      state = generateState(state.days, state.activeOptions, state.customItems);
+      saveState();
+    }
+
+    daysInput.addEventListener("input", () => {
+      state.days = Number(daysInput.value);
+      daysValue.textContent = state.days;
+      regeneratePreservingChecks();
+    });
+
+    optionButtonsWrap.querySelectorAll("[data-option]").forEach(button => {
+      button.addEventListener("click", () => {
+        const option = button.dataset.option;
+        const isActive = state.activeOptions.includes(option);
+
+        if (isActive) {
+          state.activeOptions = state.activeOptions.filter(entry => entry !== option);
+        } else {
+          state.activeOptions = [...state.activeOptions, option];
+        }
+
+        regeneratePreservingChecks();
+      });
+    });
+
+    resetBtn.addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      state = generateState(stateDefaults.days, [], []);
+      saveState();
+      render();
+    });
+
+    addItemBtn.addEventListener("click", () => {
+      const label = customItemInput.value.trim();
+      const category = customCategorySelect.value;
+      if (!label) return;
+
+      const newItem = { id: createId(), category, label, checked: false, custom: true };
+      state.customItems.push(newItem);
+      state.items.push(newItem);
+      customItemInput.value = "";
+      saveState();
+      render();
+    });
+
+    customItemInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") addItemBtn.click();
+    });
+
+    printBtn.addEventListener("click", () => {
+      window.print();
+    });
+
+    render();
+  </script>
+</body>
+</html>
