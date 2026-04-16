@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Packliste Admin</title>
+
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Packliste Admin" />
+  <meta name="theme-color" content="#12386b" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+
+  <style>
+    :root {
+      --bg: #eef3f8;
+      --card: rgba(255, 255, 255, 0.94);
+      --card-strong: #ffffff;
+      --text: #142033;
+      --muted: #667085;
+      --border: rgba(15, 23, 42, 0.08);
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+      --accent: #12386b;
+      --accent-2: #1a4b8f;
+      --accent-3: #0d274c;
+      --accent-soft: rgba(18, 56, 107, 0.1);
+      --success: #17976b;
+      --warning: #b54708;
+      --danger: #c2410c;
+      --radius: 24px;
+    }
+
+    body.dark {
+      --bg: #0b1220;
+      --card: rgba(17, 24, 39, 0.92);
+      --card-strong: #111827;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --border: rgba(255, 255, 255, 0.08);
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+      --accent: #4f83cc;
+      --accent-2: #6a9be0;
+      --accent-3: #dbeafe;
+      --accent-soft: rgba(79, 131, 204, 0.16);
+      --success: #34d399;
+      --warning: #f59e0b;
+      --danger: #fb923c;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+    body {
+      font-family: "Avenir Next", "SF Pro Display", "Segoe UI", Inter, ui-sans-serif, system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(18, 56, 107, 0.14), transparent 24%),
+        radial-gradient(circle at top right, rgba(26, 75, 143, 0.10), transparent 22%),
+        linear-gradient(180deg, #f6f9fc 0%, #edf2f8 100%);
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding:
+        max(18px, env(safe-area-inset-top))
+        max(14px, env(safe-area-inset-right))
+        max(40px, env(safe-area-inset-bottom))
+        max(14px, env(safe-area-inset-left));
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      -webkit-overflow-scrolling: touch;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    body.dark {
+      background:
+        radial-gradient(circle at top left, rgba(79, 131, 204, 0.14), transparent 24%),
+        radial-gradient(circle at top right, rgba(106, 155, 224, 0.10), transparent 22%),
+        linear-gradient(180deg, #0b1220 0%, #111827 100%);
+    }
+
+    body.saved {
+      box-shadow: inset 0 0 0 3px rgba(23, 151, 107, 0.18);
+    }
+
+    .app {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      margin-bottom: 20px;
+      padding: 24px 22px;
+      border-radius: 28px;
+      background: linear-gradient(135deg, var(--accent-3), var(--accent));
+      color: white;
+      box-shadow: 0 22px 48px rgba(13, 39, 76, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .hero-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+
+    .hero-icon-badge {
+      width: 50px;
+      height: 50px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(8px);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.02;
+      letter-spacing: -0.03em;
+      font-weight: 800;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 860px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-end;
+      flex: 0 0 auto;
+    }
+
+    .back-link {
+      min-width: 46px;
+      min-height: 46px;
+      border-radius: 14px;
+      display: inline-grid;
+      place-items: center;
+      padding: 0 14px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(8px);
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 750;
+      transition: transform 0.12s ease, background 0.2s ease;
+    }
+
+    .back-link:hover { transform: translateY(-1px); background: rgba(255,255,255,0.18); }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(8px);
+      color: white;
+    }
+
+    .theme-toggle-label {
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .switch {
+      position: relative;
+      width: 52px;
+      height: 30px;
+      flex: 0 0 auto;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+      position: absolute;
+    }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      cursor: pointer;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.26);
+      transition: 0.22s ease;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      left: 3px;
+      top: 3px;
+      border-radius: 50%;
+      background: white;
+      transition: 0.22s ease;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+    }
+
+    .switch input:checked + .slider::before {
+      transform: translateX(22px);
+    }
+
+    .switch input:checked + .slider {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .panel,
+    .main-panel,
+    .editor-card,
+    .sub-card {
+      background: var(--card);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .panel {
+      padding: 20px;
+      position: sticky;
+      top: 14px;
+    }
+
+    .main-panel {
+      padding: 20px;
+    }
+
+    .panel h2,
+    .main-panel h2 {
+      margin: 0 0 12px 0;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      font-weight: 750;
+    }
+
+    .panel-section + .panel-section {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    body.dark .panel-section + .panel-section {
+      border-top-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .nav-buttons {
+      display: grid;
+      gap: 10px;
+    }
+
+    .nav-btn,
+    button,
+    select,
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 15px;
+      font-weight: 750;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: scale(0.985); }
+
+    button.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      box-shadow: 0 12px 24px rgba(18, 56, 107, 0.22);
+    }
+
+    button.secondary,
+    .nav-btn {
+      background: white;
+      color: var(--text);
+      border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    body.dark button.secondary,
+    body.dark .nav-btn {
+      background: #111827;
+      color: var(--text);
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    button.danger {
+      background: rgba(181, 71, 8, 0.1);
+      color: var(--danger);
+      border: 1px solid rgba(181, 71, 8, 0.18);
+    }
+
+    body.dark button.danger {
+      background: rgba(245, 158, 11, 0.12);
+      color: var(--danger);
+      border-color: rgba(245, 158, 11, 0.24);
+    }
+
+    .nav-btn {
+      text-align: left;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-weight: 750;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      box-shadow: 0 12px 24px rgba(18, 56, 107, 0.18);
+      border-color: transparent;
+    }
+
+    select,
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      border: 1px solid rgba(15, 23, 42, 0.10);
+      background: rgba(255, 255, 255, 0.98);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 16px;
+      outline: none;
+      transition: 0.2s ease;
+    }
+
+    body.dark select,
+    body.dark input[type="text"],
+    body.dark input[type="number"],
+    body.dark textarea {
+      background: #111827;
+      color: var(--text);
+      border-color: rgba(255,255,255,0.08);
+    }
+
+    select:focus,
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus {
+      border-color: rgba(18, 56, 107, 0.35);
+      box-shadow: 0 0 0 4px rgba(18, 56, 107, 0.09);
+    }
+
+    .stack {
+      display: grid;
+      gap: 10px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .editor-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .editor-card {
+      padding: 18px;
+    }
+
+    .sub-card {
+      padding: 16px;
+      border-radius: 20px;
+    }
+
+    .card-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .card-title {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--accent-3);
+      letter-spacing: -0.02em;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .row-item {
+      display: grid;
+      gap: 10px;
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(246, 249, 253, 0.96);
+      border: 1px solid rgba(15, 23, 42, 0.05);
+    }
+
+    body.dark .row-item {
+      background: rgba(31, 41, 55, 0.9);
+      border-color: rgba(255,255,255,0.06);
+    }
+
+    .row-top {
+      display: grid;
+      grid-template-columns: 1.2fr 140px 140px auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .row-top-3 {
+      display: grid;
+      grid-template-columns: 1fr 140px auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .pill-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .actions-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .section-divider {
+      height: 1px;
+      background: rgba(15, 23, 42, 0.08);
+      margin: 2px 0;
+    }
+
+    body.dark .section-divider {
+      background: rgba(255,255,255,0.08);
+    }
+
+    .save-indicator {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--success);
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(2px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      min-height: 16px;
+    }
+
+    .save-indicator.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .empty {
+      padding: 16px;
+      color: var(--muted);
+      text-align: center;
+      background: rgba(248, 250, 252, 0.85);
+      border-radius: 16px;
+    }
+
+    body.dark .empty {
+      background: rgba(17, 24, 39, 0.8);
+    }
+
+    .hint-box {
+      border-radius: 16px;
+      padding: 14px;
+      background: linear-gradient(135deg, rgba(18, 56, 107, 0.08), rgba(26, 75, 143, 0.05));
+      border: 1px solid rgba(18, 56, 107, 0.1);
+      font-size: 14px;
+      line-height: 1.55;
+      color: #314158;
+    }
+
+    body.dark .hint-box {
+      color: #d1d5db;
+      background: linear-gradient(135deg, rgba(79, 131, 204, 0.12), rgba(106, 155, 224, 0.06));
+      border-color: rgba(79, 131, 204, 0.14);
+    }
+
+    @media (max-width: 1100px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .row-top,
+      .row-top-3,
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        padding:
+          max(10px, env(safe-area-inset-top))
+          max(8px, env(safe-area-inset-right))
+          max(24px, env(safe-area-inset-bottom))
+          max(8px, env(safe-area-inset-left));
+      }
+
+      .hero {
+        padding: 16px 14px;
+        border-radius: 20px;
+      }
+
+      .hero h1 { font-size: 28px; }
+      .hero p { font-size: 14px; }
+
+      .hero-icon-badge {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+      }
+
+      .panel,
+      .main-panel,
+      .editor-card,
+      .sub-card {
+        border-radius: 18px;
+      }
+
+      .main-panel,
+      .panel {
+        padding: 14px;
+      }
+
+      .editor-card { padding: 14px; }
+      .sub-card { padding: 14px; }
+
+      .hero-actions {
+        width: 100%;
+        align-items: flex-end;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section class="hero">
+      <div class="hero-top">
+        <div class="hero-title-wrap">
+          <div class="hero-icon-badge" id="adminHeroIcon"></div>
+          <h1>Adminbereich</h1>
+        </div>
+
+        <div class="hero-actions">
+          <a class="back-link" href="index.html" aria-label="Zurück zur Packliste">Zurück</a>
+
+          <div class="theme-toggle">
+            <span class="theme-toggle-label">Hell</span>
+            <label class="switch" aria-label="Dark Mode umschalten">
+              <input type="checkbox" id="themeToggle" />
+              <span class="slider"></span>
+            </label>
+            <span class="theme-toggle-label">Dunkel</span>
+          </div>
+        </div>
+      </div>
+
+      <p>
+        Hier kannst du deine lokale Grundkonfiguration anpassen. Änderungen gelten nur für deinen Browser
+        auf diesem Gerät und beeinflussen niemand anderen.
+      </p>
+    </section>
+
+    <div class="layout">
+      <aside class="panel">
+        <div class="panel-section">
+          <h2>Bereiche</h2>
+          <div class="nav-buttons">
+            <button class="nav-btn active" data-view="categoriesView">Kategorien</button>
+            <button class="nav-btn" data-view="baseItemsView">Basisartikel</button>
+            <button class="nav-btn" data-view="optionsView">Zusatzoptionen</button>
+            <button class="nav-btn" data-view="optionItemsView">Options-Artikel</button>
+            <button class="nav-btn" data-view="configView">Konfiguration</button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h2>Status</h2>
+          <div class="hint-box">
+            Änderungen werden lokal gespeichert und direkt in der Packliste verwendet. Die Speziallogik von
+            <strong>Ferienhaus</strong> bleibt weiterhin bewusst in der Hauptdatei definiert.
+          </div>
+          <div class="save-indicator" id="saveIndicator">Gespeichert</div>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <div class="editor-stack">
+
+          <section id="categoriesView" class="editor-view">
+            <div class="editor-card">
+              <div class="card-title-row">
+                <h2 class="card-title">Kategorien verwalten</h2>
+                <span class="pill-note">Name · Icon · Reihenfolge</span>
+              </div>
+
+              <div class="stack" style="margin-bottom:14px;">
+                <label class="label" for="newCategoryName">Neue Kategorie</label>
+                <div class="grid-2">
+                  <input id="newCategoryName" type="text" placeholder="z. B. Camping" />
+                  <select id="newCategoryIcon"></select>
+                </div>
+                <button class="primary" id="addCategoryBtn">Kategorie hinzufügen</button>
+              </div>
+
+              <div id="categoriesList" class="list"></div>
+            </div>
+          </section>
+
+          <section id="baseItemsView" class="editor-view hidden">
+            <div class="editor-card">
+              <div class="card-title-row">
+                <h2 class="card-title">Basisartikel verwalten</h2>
+                <span class="pill-note">pro Kategorie dauerhaft</span>
+              </div>
+
+              <div class="stack" style="margin-bottom:14px;">
+                <label class="label" for="baseItemsCategorySelect">Kategorie wählen</label>
+                <select id="baseItemsCategorySelect"></select>
+              </div>
+
+              <div class="sub-card" style="margin-bottom:14px;">
+                <label class="label" for="newBaseItemInput">Neuen Basisartikel hinzufügen</label>
+                <div class="grid-2">
+                  <input id="newBaseItemInput" type="text" placeholder="z. B. Stirnlampe" />
+                  <button class="primary" id="addBaseItemBtn">Artikel hinzufügen</button>
+                </div>
+              </div>
+
+              <div id="baseItemsList" class="list"></div>
+            </div>
+          </section>
+
+          <section id="optionsView" class="editor-view hidden">
+            <div class="editor-card">
+              <div class="card-title-row">
+                <h2 class="card-title">Zusatzoptionen verwalten</h2>
+                <span class="pill-note">Button · Icon · Reihenfolge</span>
+              </div>
+
+              <div class="stack" style="margin-bottom:14px;">
+                <label class="label" for="newOptionLabel">Neue Zusatzoption</label>
+                <div class="grid-2">
+                  <input id="newOptionLabel" type="text" placeholder="z. B. Wandern" />
+                  <select id="newOptionIcon"></select>
+                </div>
+                <button class="primary" id="addOptionBtn">Zusatzoption hinzufügen</button>
+              </div>
+
+              <div id="optionsList" class="list"></div>
+            </div>
+          </section>
+
+          <section id="optionItemsView" class="editor-view hidden">
+            <div class="editor-card">
+              <div class="card-title-row">
+                <h2 class="card-title">Artikel pro Zusatzoption</h2>
+                <span class="pill-note">pro Option und Kategorie</span>
+              </div>
+
+              <div class="grid-2" style="margin-bottom:14px;">
+                <div>
+                  <label class="label" for="optionItemsOptionSelect">Zusatzoption</label>
+                  <select id="optionItemsOptionSelect"></select>
+                </div>
+                <div>
+                  <label class="label" for="optionItemsCategorySelect">Kategorie</label>
+                  <select id="optionItemsCategorySelect"></select>
+                </div>
+              </div>
+
+              <div class="sub-card" style="margin-bottom:14px;">
+                <label class="label" for="newOptionItemInput">Neuen Options-Artikel hinzufügen</label>
+                <div class="grid-2">
+                  <input id="newOptionItemInput" type="text" placeholder="z. B. Wanderstöcke" />
+                  <button class="primary" id="addOptionItemBtn">Artikel hinzufügen</button>
+                </div>
+              </div>
+
+              <div id="optionItemsList" class="list"></div>
+            </div>
+          </section>
+
+          <section id="configView" class="editor-view hidden">
+            <div class="editor-card">
+              <div class="card-title-row">
+                <h2 class="card-title">Konfiguration</h2>
+                <span class="pill-note">Export · Import · Reset</span>
+              </div>
+
+              <div class="stack">
+                <div class="sub-card">
+                  <div class="card-title-row">
+                    <h3 class="card-title" style="font-size:16px;">Export</h3>
+                  </div>
+                  <p class="muted">Exportiert deine lokale Konfiguration als JSON-Datei.</p>
+                  <button class="secondary" id="exportConfigBtn">Konfiguration exportieren</button>
+                </div>
+
+                <div class="sub-card">
+                  <div class="card-title-row">
+                    <h3 class="card-title" style="font-size:16px;">Import</h3>
+                  </div>
+                  <p class="muted">Importiert eine zuvor exportierte JSON-Konfiguration.</p>
+                  <input class="file-input" id="importConfigInput" type="file" accept="application/json" />
+                  <div class="actions-row">
+                    <button class="secondary" id="importConfigBtn">Konfiguration importieren</button>
+                  </div>
+                </div>
+
+                <div class="sub-card">
+                  <div class="card-title-row">
+                    <h3 class="card-title" style="font-size:16px;">Zurücksetzen</h3>
+                  </div>
+                  <p class="muted">Setzt nur die lokale Grundkonfiguration auf Standard zurück. Deine gespeicherten Reisen bleiben erhalten.</p>
+                  <button class="danger" id="resetConfigBtn">Konfiguration auf Standard zurücksetzen</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const THEME_KEY = "packliste-theme-v1";
+    const CONFIG_KEY = "packliste-config-v1";
+
+    function iconHouse() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 10.5 12 3l9 7.5" />
+          <path d="M5.5 9.5V20h13V9.5" />
+          <path d="M10 20v-5h4v5" />
+        </svg>`;
+    }
+
+    function iconCloudRain() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7 18a4 4 0 1 1 .7-7.94A5 5 0 0 1 18 12h.5a2.5 2.5 0 0 1 0 5H7Z" />
+          <path d="M9 19l-1 2" />
+          <path d="M13 19l-1 2" />
+          <path d="M17 19l-1 2" />
+        </svg>`;
+    }
+
+    function iconBeach() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 4c3.5 0 6 2.5 6 6H6c0-3.5 2.5-6 6-6Z" />
+          <path d="M12 10v10" />
+          <path d="M7 20h10" />
+          <path d="M4 14c2 .5 4 .5 6 0 2-.5 4-.5 6 0 2 .5 4 .5 4 .5" />
+        </svg>`;
+    }
+
+    function iconMountain() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 20 10 8l4 6 2-3 5 9" />
+          <path d="M8.5 10.5 10 8l1.5 2.5" />
+        </svg>`;
+    }
+
+    function iconDumbbell() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 10v4" />
+          <path d="M6 8v8" />
+          <path d="M9 10v4" />
+          <path d="M15 10v4" />
+          <path d="M18 8v8" />
+          <path d="M21 10v4" />
+          <path d="M9 12h6" />
+        </svg>`;
+    }
+
+    function iconId() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <circle cx="8" cy="12" r="2" />
+          <path d="M13 10h4M13 14h4" />
+        </svg>`;
+    }
+
+    function iconTech() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="4" y="5" width="16" height="11" rx="2" />
+          <path d="M8 19h8" />
+          <path d="M10 16v3M14 16v3" />
+        </svg>`;
+    }
+
+    function iconBottle() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M10 3h4" />
+          <path d="M11 3v4l-3 4v8a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-8l-3-4V3" />
+        </svg>`;
+    }
+
+    function iconShirt() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="m9 4 3 2 3-2 4 3-2 4-2-1v10H9V10L7 11 5 7l4-3Z" />
+        </svg>`;
+    }
+
+    function iconBag() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 8h12l-1 11H7L6 8Z" />
+          <path d="M9 8a3 3 0 0 1 6 0" />
+        </svg>`;
+    }
+
+    function iconSettings() {
+      return `
+        <svg class="symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.65 1.65 0 0 0 15 19.4a1.65 1.65 0 0 0-1 .6 1.65 1.65 0 0 0-.33 1V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-.33-1 1.65 1.65 0 0 0-1-.6 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-.6-1 1.65 1.65 0 0 0-1-.33H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1-.33 1.65 1.65 0 0 0 .6-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-.6 1.65 1.65 0 0 0 .33-1V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 .33 1 1.65 1.65 0 0 0 1 .6 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.27.3.48.65.6 1 .08.31.11.65.1 1a1.65 1.65 0 0 0 .33 1 1.65 1.65 0 0 0 1 .6H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1 .33 1.65 1.65 0 0 0-.51 1.07Z"></path>
+        </svg>`;
+    }
+
+    const iconMap = {
+      house: iconHouse,
+      cloudRain: iconCloudRain,
+      beach: iconBeach,
+      mountain: iconMountain,
+      dumbbell: iconDumbbell,
+      id: iconId,
+      tech: iconTech,
+      bottle: iconBottle,
+      shirt: iconShirt,
+      bag: iconBag,
+      settings: iconSettings
+    };
+
+    const iconChoices = [
+      { value: "house", label: "Haus" },
+      { value: "cloudRain", label: "Regenwolke" },
+      { value: "beach", label: "Strand" },
+      { value: "mountain", label: "Berge" },
+      { value: "dumbbell", label: "Sport" },
+      { value: "id", label: "Dokument" },
+      { value: "tech", label: "Technik" },
+      { value: "bottle", label: "Flasche" },
+      { value: "shirt", label: "Kleidung" },
+      { value: "bag", label: "Tasche" },
+      { value: "settings", label: "Einstellungen" }
+    ];
+
+    const defaultConfig = {
+      categories: [
+        { id: "dokumente", name: "Dokumente", icon: "id", order: 1 },
+        { id: "technik", name: "Technik", icon: "tech", order: 2 },
+        { id: "hygieneartikel", name: "Hygieneartikel", icon: "bottle", order: 3 },
+        { id: "kleidung", name: "Kleidung", icon: "shirt", order: 4 },
+        { id: "sonstiges", name: "Sonstiges", icon: "bag", order: 5 }
+      ],
+      optionMeta: [
+        { id: "ferienhaus", label: "Ferienhaus", icon: "house", order: 1 },
+        { id: "schlechtwetter", label: "Schlechtwetter", icon: "cloudRain", order: 2 },
+        { id: "baden", label: "Baden / Strand", icon: "beach", order: 3 },
+        { id: "winter", label: "Herbst / Winter", icon: "mountain", order: 4 },
+        { id: "sport", label: "Sportklamotten", icon: "dumbbell", order: 5 }
+      ],
+      baseTemplates: {
+        "Dokumente": [
+          "Ausweis / Reisepass",
+          "Portemonnaie",
+          "Buchungsunterlagen",
+          "Krankenkassenkarte"
+        ],
+        "Technik": [
+          "Handy",
+          "Ladekabel"
+        ],
+        "Hygieneartikel": [
+          "Zahnbürste (inkl. Ladekabel)",
+          "Zahnpasta",
+          "Zahnseide",
+          "Gesichtscreme",
+          "Sonnencreme",
+          "Trockenrasierer (inkl. Ladekabel)",
+          "Nassrasierer",
+          "Rasierschaum",
+          "Deoroller",
+          "Shampoo",
+          "Duschgel",
+          "Parfüm",
+          "Wattestäbchen",
+          "Nagelpflegeset",
+          "Haarschneider (inkl. Ladekabel)"
+        ],
+        "Kleidung": [
+          "Hosen (lang/kurz)",
+          "T-Shirts",
+          "Unterwäsche",
+          "Socken",
+          "Jäckchen (Fix 1-2)",
+          "Pyjama",
+          "Schickes Kurzarm/Langarmhemd (optinal)"
+        ],
+        "Sonstiges": [
+          "Sonnenbrille",
+          "Sonnenhut",
+          "Medikamente (inkl. Teiler und Schieber)",
+          "Magnesium",
+          "Rucksack",
+          "Campingstuhl + Sitzhocker",
+          "Buch oder E-Reader"
+        ]
+      },
+      optionTemplates: {
+        schlechtwetter: {
+          "Kleidung": [
+            "Regenjacke"
+          ],
+          "Sonstiges": [
+            "Schirm"
+          ]
+        },
+        baden: {
+          "Kleidung": [
+            "Badehosen",
+            "Badelatschen"
+          ],
+          "Hygieneartikel": [
+            "After Sun"
+          ]
+        },
+        winter: {
+          "Kleidung": [
+            "Handschuhe",
+            "Schal",
+            "Mütze",
+            "Pullover/Fleece"
+          ]
+        },
+        sport: {
+          "Kleidung": [
+            "Mammut Sporttasche",
+            "Lange Trainingshose",
+            "Kurze Trainingshose",
+            "Sport-Shirts"
+          ],
+          "Sonstiges": [
+            "Gym Handtuch",
+            "Trinkflasche"
+          ]
+        }
+      }
+    };
+
+    const themeToggle = document.getElementById("themeToggle");
+    const saveIndicator = document.getElementById("saveIndicator");
+    const adminHeroIcon = document.getElementById("adminHeroIcon");
+
+    const newCategoryName = document.getElementById("newCategoryName");
+    const newCategoryIcon = document.getElementById("newCategoryIcon");
+    const addCategoryBtn = document.getElementById("addCategoryBtn");
+    const categoriesList = document.getElementById("categoriesList");
+
+    const baseItemsCategorySelect = document.getElementById("baseItemsCategorySelect");
+    const newBaseItemInput = document.getElementById("newBaseItemInput");
+    const addBaseItemBtn = document.getElementById("addBaseItemBtn");
+    const baseItemsList = document.getElementById("baseItemsList");
+
+    const newOptionLabel = document.getElementById("newOptionLabel");
+    const newOptionIcon = document.getElementById("newOptionIcon");
+    const addOptionBtn = document.getElementById("addOptionBtn");
+    const optionsList = document.getElementById("optionsList");
+
+    const optionItemsOptionSelect = document.getElementById("optionItemsOptionSelect");
+    const optionItemsCategorySelect = document.getElementById("optionItemsCategorySelect");
+    const newOptionItemInput = document.getElementById("newOptionItemInput");
+    const addOptionItemBtn = document.getElementById("addOptionItemBtn");
+    const optionItemsList = document.getElementById("optionItemsList");
+
+    const exportConfigBtn = document.getElementById("exportConfigBtn");
+    const importConfigBtn = document.getElementById("importConfigBtn");
+    const importConfigInput = document.getElementById("importConfigInput");
+    const resetConfigBtn = document.getElementById("resetConfigBtn");
+
+    let saveIndicatorTimer = null;
+    let config = loadConfig();
+
+    function deepClone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function createId(prefix = "id") {
+      if (window.crypto && crypto.randomUUID) return `${prefix}-${crypto.randomUUID()}`;
+      return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function slugify(text) {
+      return String(text)
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "") || createId("slug");
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function showSaveIndicator(message = "Gespeichert") {
+      saveIndicator.textContent = message;
+      saveIndicator.classList.add("show");
+      clearTimeout(saveIndicatorTimer);
+      saveIndicatorTimer = setTimeout(() => {
+        saveIndicator.classList.remove("show");
+      }, 1400);
+    }
+
+    function pulseSavedState() {
+      document.body.classList.add("saved");
+      setTimeout(() => document.body.classList.remove("saved"), 320);
+    }
+
+    function loadTheme() {
+      const saved = localStorage.getItem(THEME_KEY);
+      if (saved === "dark" || saved === "light") return saved;
+      return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    }
+
+    function applyTheme(theme) {
+      document.body.classList.toggle("dark", theme === "dark");
+      themeToggle.checked = theme === "dark";
+      localStorage.setItem(THEME_KEY, theme);
+    }
+
+    function normalizeConfig(candidate) {
+      const fallback = deepClone(defaultConfig);
+      const out = {
+        categories: Array.isArray(candidate?.categories) ? candidate.categories : fallback.categories,
+        optionMeta: Array.isArray(candidate?.optionMeta) ? candidate.optionMeta : fallback.optionMeta,
+        baseTemplates: candidate?.baseTemplates && typeof candidate.baseTemplates === "object" ? candidate.baseTemplates : fallback.baseTemplates,
+        optionTemplates: candidate?.optionTemplates && typeof candidate.optionTemplates === "object" ? candidate.optionTemplates : fallback.optionTemplates
+      };
+
+      out.categories = out.categories.map((cat, index) => ({
+        id: cat.id || slugify(cat.name || `kategorie-${index + 1}`),
+        name: cat.name || `Kategorie ${index + 1}`,
+        icon: iconMap[cat.icon] ? cat.icon : "bag",
+        order: Number.isFinite(Number(cat.order)) ? Number(cat.order) : index + 1
+      }));
+
+      out.optionMeta = out.optionMeta.map((opt, index) => ({
+        id: opt.id || slugify(opt.label || `option-${index + 1}`),
+        label: opt.label || `Option ${index + 1}`,
+        icon: iconMap[opt.icon] ? opt.icon : "bag",
+        order: Number.isFinite(Number(opt.order)) ? Number(opt.order) : index + 1
+      }));
+
+      for (const category of out.categories) {
+        if (!Array.isArray(out.baseTemplates[category.name])) {
+          out.baseTemplates[category.name] = [];
+        }
+      }
+
+      const validCategoryNames = new Set(out.categories.map(cat => cat.name));
+      for (const key of Object.keys(out.baseTemplates)) {
+        if (!validCategoryNames.has(key)) {
+          delete out.baseTemplates[key];
+        }
+      }
+
+      for (const option of out.optionMeta) {
+        if (!out.optionTemplates[option.id] || typeof out.optionTemplates[option.id] !== "object") {
+          out.optionTemplates[option.id] = {};
+        }
+
+        for (const category of out.categories) {
+          if (!Array.isArray(out.optionTemplates[option.id][category.name])) {
+            out.optionTemplates[option.id][category.name] = [];
+          }
+        }
+
+        for (const key of Object.keys(out.optionTemplates[option.id])) {
+          if (!validCategoryNames.has(key)) {
+            delete out.optionTemplates[option.id][key];
+          }
+        }
+      }
+
+      for (const key of Object.keys(out.optionTemplates)) {
+        if (!out.optionMeta.some(option => option.id === key)) {
+          delete out.optionTemplates[key];
+        }
+      }
+
+      return out;
+    }
+
+    function loadConfig() {
+      const raw = localStorage.getItem(CONFIG_KEY);
+      if (!raw) return normalizeConfig(defaultConfig);
+
+      try {
+        return normalizeConfig(JSON.parse(raw));
+      } catch {
+        return normalizeConfig(defaultConfig);
+      }
+    }
+
+    function saveConfig(message = "Gespeichert") {
+      config = normalizeConfig(config);
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+      pulseSavedState();
+      showSaveIndicator(message);
+    }
+
+    function getSortedCategories() {
+      return [...config.categories].sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+    }
+
+    function getSortedOptions() {
+      return [...config.optionMeta].sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+    }
+
+    function renderIconSelect(selectEl, selectedValue = "bag") {
+      selectEl.innerHTML = iconChoices
+        .map(choice => `<option value="${escapeHtml(choice.value)}"${choice.value === selectedValue ? " selected" : ""}>${escapeHtml(choice.label)}</option>`)
+        .join("");
+    }
+
+    function populateSharedSelects() {
+      renderIconSelect(newCategoryIcon, "bag");
+      renderIconSelect(newOptionIcon, "bag");
+
+      const categoryOptions = getSortedCategories()
+        .map(category => `<option value="${escapeHtml(category.id)}">${escapeHtml(category.name)}</option>`)
+        .join("");
+
+      baseItemsCategorySelect.innerHTML = categoryOptions;
+      optionItemsCategorySelect.innerHTML = categoryOptions;
+
+      const optionChoices = getSortedOptions()
+        .map(option => `<option value="${escapeHtml(option.id)}">${escapeHtml(option.label)}</option>`)
+        .join("");
+
+      optionItemsOptionSelect.innerHTML = optionChoices;
+    }
+
+    function getCategoryById(id) {
+      return config.categories.find(category => category.id === id);
+    }
+
+    function getOptionById(id) {
+      return config.optionMeta.find(option => option.id === id);
+    }
+
+    function renameCategory(oldName, newName) {
+      if (oldName === newName) return;
+
+      if (config.baseTemplates[oldName]) {
+        config.baseTemplates[newName] = config.baseTemplates[oldName];
+        delete config.baseTemplates[oldName];
+      } else if (!config.baseTemplates[newName]) {
+        config.baseTemplates[newName] = [];
+      }
+
+      for (const optionId of Object.keys(config.optionTemplates)) {
+        const entry = config.optionTemplates[optionId];
+        if (entry && entry[oldName]) {
+          entry[newName] = entry[oldName];
+          delete entry[oldName];
+        } else if (entry && !entry[newName]) {
+          entry[newName] = [];
+        }
+      }
+    }
+
+    function removeCategoryById(categoryId) {
+      const category = getCategoryById(categoryId);
+      if (!category) return;
+
+      const confirmed = window.confirm(`Kategorie "${category.name}" wirklich löschen?`);
+      if (!confirmed) return;
+
+      config.categories = config.categories.filter(entry => entry.id !== categoryId);
+      delete config.baseTemplates[category.name];
+
+      for (const optionId of Object.keys(config.optionTemplates)) {
+        if (config.optionTemplates[optionId]) {
+          delete config.optionTemplates[optionId][category.name];
+        }
+      }
+
+      saveConfig("Kategorie gelöscht");
+      renderAll();
+    }
+
+    function removeOptionById(optionId) {
+      const option = getOptionById(optionId);
+      if (!option) return;
+
+      const confirmed = window.confirm(`Zusatzoption "${option.label}" wirklich löschen?`);
+      if (!confirmed) return;
+
+      config.optionMeta = config.optionMeta.filter(entry => entry.id !== optionId);
+      delete config.optionTemplates[optionId];
+
+      saveConfig("Zusatzoption gelöscht");
+      renderAll();
+    }
+
+    function renderCategoriesList() {
+      const categories = getSortedCategories();
+
+      if (!categories.length) {
+        categoriesList.innerHTML = `<div class="empty">Noch keine Kategorien vorhanden.</div>`;
+        return;
+      }
+
+      categoriesList.innerHTML = categories.map(category => `
+        <div class="row-item">
+          <div class="row-top">
+            <input type="text" data-category-name="${escapeHtml(category.id)}" value="${escapeHtml(category.name)}" />
+            <select data-category-icon="${escapeHtml(category.id)}"></select>
+            <input type="number" min="1" step="1" data-category-order="${escapeHtml(category.id)}" value="${escapeHtml(category.order)}" />
+            <button class="danger" data-delete-category="${escapeHtml(category.id)}">Löschen</button>
+          </div>
+        </div>
+      `).join("");
+
+      categories.forEach(category => {
+        const iconSelect = categoriesList.querySelector(`[data-category-icon="${CSS.escape(category.id)}"]`);
+        renderIconSelect(iconSelect, category.icon);
+
+        const nameInput = categoriesList.querySelector(`[data-category-name="${CSS.escape(category.id)}"]`);
+        const orderInput = categoriesList.querySelector(`[data-category-order="${CSS.escape(category.id)}"]`);
+        const deleteBtn = categoriesList.querySelector(`[data-delete-category="${CSS.escape(category.id)}"]`);
+
+        nameInput.addEventListener("change", () => {
+          const oldName = category.name;
+          const newName = nameInput.value.trim();
+          if (!newName) {
+            nameInput.value = oldName;
+            return;
+          }
+
+          const duplicate = config.categories.some(entry => entry.id !== category.id && entry.name.toLowerCase() === newName.toLowerCase());
+          if (duplicate) {
+            showSaveIndicator("Kategoriename existiert bereits");
+            nameInput.value = oldName;
+            return;
+          }
+
+          const target = getCategoryById(category.id);
+          if (!target) return;
+          target.name = newName;
+          renameCategory(oldName, newName);
+          saveConfig("Kategorie aktualisiert");
+          renderAll();
+        });
+
+        iconSelect.addEventListener("change", () => {
+          const target = getCategoryById(category.id);
+          if (!target) return;
+          target.icon = iconSelect.value;
+          saveConfig("Kategorie aktualisiert");
+          renderAll();
+        });
+
+        orderInput.addEventListener("change", () => {
+          const target = getCategoryById(category.id);
+          if (!target) return;
+          target.order = Math.max(1, Number(orderInput.value) || 1);
+          saveConfig("Reihenfolge aktualisiert");
+          renderAll();
+        });
+
+        deleteBtn.addEventListener("click", () => {
+          removeCategoryById(category.id);
+        });
+      });
+    }
+
+    function renderBaseItemsList() {
+      const category = getCategoryById(baseItemsCategorySelect.value) || getSortedCategories()[0];
+
+      if (!category) {
+        baseItemsList.innerHTML = `<div class="empty">Bitte zuerst eine Kategorie anlegen.</div>`;
+        return;
+      }
+
+      const items = config.baseTemplates[category.name] || [];
+
+      if (!items.length) {
+        baseItemsList.innerHTML = `<div class="empty">Noch keine Basisartikel in dieser Kategorie.</div>`;
+        return;
+      }
+
+      baseItemsList.innerHTML = items.map((item, index) => `
+        <div class="row-item">
+          <div class="row-top-3">
+            <input type="text" data-base-item-index="${index}" value="${escapeHtml(item)}" />
+            <input type="number" min="1" step="1" data-base-item-order="${index}" value="${index + 1}" />
+            <button class="danger" data-delete-base-item="${index}">Löschen</button>
+          </div>
+        </div>
+      `).join("");
+
+      items.forEach((item, index) => {
+        const textInput = baseItemsList.querySelector(`[data-base-item-index="${index}"]`);
+        const orderInput = baseItemsList.querySelector(`[data-base-item-order="${index}"]`);
+        const deleteBtn = baseItemsList.querySelector(`[data-delete-base-item="${index}"]`);
+
+        textInput.addEventListener("change", () => {
+          const value = textInput.value.trim();
+          if (!value) {
+            textInput.value = item;
+            return;
+          }
+          config.baseTemplates[category.name][index] = value;
+          saveConfig("Basisartikel aktualisiert");
+          renderAll();
+        });
+
+        orderInput.addEventListener("change", () => {
+          const targetPos = Math.max(1, Number(orderInput.value) || 1) - 1;
+          const list = config.baseTemplates[category.name];
+          const [moved] = list.splice(index, 1);
+          list.splice(Math.min(targetPos, list.length), 0, moved);
+          saveConfig("Reihenfolge aktualisiert");
+          renderAll();
+        });
+
+        deleteBtn.addEventListener("click", () => {
+          config.baseTemplates[category.name].splice(index, 1);
+          saveConfig("Basisartikel gelöscht");
+          renderAll();
+        });
+      });
+    }
+
+    function renderOptionsList() {
+      const options = getSortedOptions();
+
+      if (!options.length) {
+        optionsList.innerHTML = `<div class="empty">Noch keine Zusatzoptionen vorhanden.</div>`;
+        return;
+      }
+
+      optionsList.innerHTML = options.map(option => `
+        <div class="row-item">
+          <div class="row-top">
+            <input type="text" data-option-label="${escapeHtml(option.id)}" value="${escapeHtml(option.label)}" />
+            <select data-option-icon="${escapeHtml(option.id)}"></select>
+            <input type="number" min="1" step="1" data-option-order="${escapeHtml(option.id)}" value="${escapeHtml(option.order)}" />
+            <button class="danger" data-delete-option="${escapeHtml(option.id)}">Löschen</button>
+          </div>
+        </div>
+      `).join("");
+
+      options.forEach(option => {
+        const labelInput = optionsList.querySelector(`[data-option-label="${CSS.escape(option.id)}"]`);
+        const iconSelect = optionsList.querySelector(`[data-option-icon="${CSS.escape(option.id)}"]`);
+        const orderInput = optionsList.querySelector(`[data-option-order="${CSS.escape(option.id)}"]`);
+        const deleteBtn = optionsList.querySelector(`[data-delete-option="${CSS.escape(option.id)}"]`);
+
+        renderIconSelect(iconSelect, option.icon);
+
+        labelInput.addEventListener("change", () => {
+          const value = labelInput.value.trim();
+          if (!value) {
+            labelInput.value = option.label;
+            return;
+          }
+          const target = getOptionById(option.id);
+          if (!target) return;
+          target.label = value;
+          saveConfig("Zusatzoption aktualisiert");
+          renderAll();
+        });
+
+        iconSelect.addEventListener("change", () => {
+          const target = getOptionById(option.id);
+          if (!target) return;
+          target.icon = iconSelect.value;
+          saveConfig("Zusatzoption aktualisiert");
+          renderAll();
+        });
+
+        orderInput.addEventListener("change", () => {
+          const target = getOptionById(option.id);
+          if (!target) return;
+          target.order = Math.max(1, Number(orderInput.value) || 1);
+          saveConfig("Reihenfolge aktualisiert");
+          renderAll();
+        });
+
+        deleteBtn.addEventListener("click", () => {
+          removeOptionById(option.id);
+        });
+      });
+    }
+
+    function renderOptionItemsList() {
+      const option = getOptionById(optionItemsOptionSelect.value) || getSortedOptions()[0];
+      const category = getCategoryById(optionItemsCategorySelect.value) || getSortedCategories()[0];
+
+      if (!option || !category) {
+        optionItemsList.innerHTML = `<div class="empty">Bitte zuerst Kategorien und Zusatzoptionen anlegen.</div>`;
+        return;
+      }
+
+      if (!config.optionTemplates[option.id]) {
+        config.optionTemplates[option.id] = {};
+      }
+      if (!Array.isArray(config.optionTemplates[option.id][category.name])) {
+        config.optionTemplates[option.id][category.name] = [];
+      }
+
+      const items = config.optionTemplates[option.id][category.name];
+
+      if (!items.length) {
+        optionItemsList.innerHTML = `<div class="empty">Noch keine Artikel für diese Zusatzoption in dieser Kategorie.</div>`;
+        return;
+      }
+
+      optionItemsList.innerHTML = items.map((item, index) => `
+        <div class="row-item">
+          <div class="row-top-3">
+            <input type="text" data-option-item-index="${index}" value="${escapeHtml(item)}" />
+            <input type="number" min="1" step="1" data-option-item-order="${index}" value="${index + 1}" />
+            <button class="danger" data-delete-option-item="${index}">Löschen</button>
+          </div>
+        </div>
+      `).join("");
+
+      items.forEach((item, index) => {
+        const textInput = optionItemsList.querySelector(`[data-option-item-index="${index}"]`);
+        const orderInput = optionItemsList.querySelector(`[data-option-item-order="${index}"]`);
+        const deleteBtn = optionItemsList.querySelector(`[data-delete-option-item="${index}"]`);
+
+        textInput.addEventListener("change", () => {
+          const value = textInput.value.trim();
+          if (!value) {
+            textInput.value = item;
+            return;
+          }
+          config.optionTemplates[option.id][category.name][index] = value;
+          saveConfig("Options-Artikel aktualisiert");
+          renderAll();
+        });
+
+        orderInput.addEventListener("change", () => {
+          const list = config.optionTemplates[option.id][category.name];
+          const targetPos = Math.max(1, Number(orderInput.value) || 1) - 1;
+          const [moved] = list.splice(index, 1);
+          list.splice(Math.min(targetPos, list.length), 0, moved);
+          saveConfig("Reihenfolge aktualisiert");
+          renderAll();
+        });
+
+        deleteBtn.addEventListener("click", () => {
+          config.optionTemplates[option.id][category.name].splice(index, 1);
+          saveConfig("Options-Artikel gelöscht");
+          renderAll();
+        });
+      });
+    }
+
+    function renderAll() {
+      config = normalizeConfig(config);
+      populateSharedSelects();
+      renderCategoriesList();
+      renderBaseItemsList();
+      renderOptionsList();
+      renderOptionItemsList();
+      adminHeroIcon.innerHTML = iconSettings();
+    }
+
+    document.querySelectorAll(".nav-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".nav-btn").forEach(entry => entry.classList.remove("active"));
+        document.querySelectorAll(".editor-view").forEach(view => view.classList.add("hidden"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.view).classList.remove("hidden");
+      });
+    });
+
+    addCategoryBtn.addEventListener("click", () => {
+      const name = newCategoryName.value.trim();
+      if (!name) {
+        showSaveIndicator("Bitte Kategorienamen eingeben");
+        return;
+      }
+
+      const duplicate = config.categories.some(category => category.name.toLowerCase() === name.toLowerCase());
+      if (duplicate) {
+        showSaveIndicator("Kategorie existiert bereits");
+        return;
+      }
+
+      const nextOrder = Math.max(0, ...config.categories.map(category => Number(category.order) || 0)) + 1;
+      const id = slugify(name);
+
+      config.categories.push({
+        id,
+        name,
+        icon: newCategoryIcon.value || "bag",
+        order: nextOrder
+      });
+
+      config.baseTemplates[name] = config.baseTemplates[name] || [];
+
+      for (const option of config.optionMeta) {
+        if (!config.optionTemplates[option.id]) config.optionTemplates[option.id] = {};
+        config.optionTemplates[option.id][name] = config.optionTemplates[option.id][name] || [];
+      }
+
+      newCategoryName.value = "";
+      newCategoryName.focus();
+      saveConfig("Kategorie hinzugefügt");
+      renderAll();
+    });
+
+    addBaseItemBtn.addEventListener("click", () => {
+      const category = getCategoryById(baseItemsCategorySelect.value);
+      const label = newBaseItemInput.value.trim();
+
+      if (!category) {
+        showSaveIndicator("Bitte zuerst eine Kategorie anlegen");
+        return;
+      }
+
+      if (!label) {
+        showSaveIndicator("Bitte Artikel eingeben");
+        return;
+      }
+
+      config.baseTemplates[category.name] = config.baseTemplates[category.name] || [];
+      config.baseTemplates[category.name].push(label);
+
+      newBaseItemInput.value = "";
+      newBaseItemInput.focus();
+      saveConfig("Basisartikel hinzugefügt");
+      renderAll();
+    });
+
+    addOptionBtn.addEventListener("click", () => {
+      const label = newOptionLabel.value.trim();
+      if (!label) {
+        showSaveIndicator("Bitte Namen für Zusatzoption eingeben");
+        return;
+      }
+
+      const duplicate = config.optionMeta.some(option => option.label.toLowerCase() === label.toLowerCase());
+      if (duplicate) {
+        showSaveIndicator("Zusatzoption existiert bereits");
+        return;
+      }
+
+      const nextOrder = Math.max(0, ...config.optionMeta.map(option => Number(option.order) || 0)) + 1;
+      const id = slugify(label);
+
+      config.optionMeta.push({
+        id,
+        label,
+        icon: newOptionIcon.value || "bag",
+        order: nextOrder
+      });
+
+      config.optionTemplates[id] = {};
+      for (const category of config.categories) {
+        config.optionTemplates[id][category.name] = [];
+      }
+
+      newOptionLabel.value = "";
+      newOptionLabel.focus();
+      saveConfig("Zusatzoption hinzugefügt");
+      renderAll();
+    });
+
+    addOptionItemBtn.addEventListener("click", () => {
+      const option = getOptionById(optionItemsOptionSelect.value);
+      const category = getCategoryById(optionItemsCategorySelect.value);
+      const label = newOptionItemInput.value.trim();
+
+      if (!option || !category) {
+        showSaveIndicator("Bitte zuerst Kategorie und Zusatzoption wählen");
+        return;
+      }
+
+      if (!label) {
+        showSaveIndicator("Bitte Artikel eingeben");
+        return;
+      }
+
+      config.optionTemplates[option.id] = config.optionTemplates[option.id] || {};
+      config.optionTemplates[option.id][category.name] = config.optionTemplates[option.id][category.name] || [];
+      config.optionTemplates[option.id][category.name].push(label);
+
+      newOptionItemInput.value = "";
+      newOptionItemInput.focus();
+      saveConfig("Options-Artikel hinzugefügt");
+      renderAll();
+    });
+
+    baseItemsCategorySelect.addEventListener("change", renderBaseItemsList);
+    optionItemsOptionSelect.addEventListener("change", renderOptionItemsList);
+    optionItemsCategorySelect.addEventListener("change", renderOptionItemsList);
+
+    newCategoryName.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") addCategoryBtn.click();
+    });
+
+    newBaseItemInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") addBaseItemBtn.click();
+    });
+
+    newOptionLabel.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") addOptionBtn.click();
+    });
+
+    newOptionItemInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") addOptionItemBtn.click();
+    });
+
+    exportConfigBtn.addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(normalizeConfig(config), null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "packliste-config.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showSaveIndicator("Konfiguration exportiert");
+    });
+
+    importConfigBtn.addEventListener("click", () => {
+      importConfigInput.click();
+    });
+
+    importConfigInput.addEventListener("change", async () => {
+      const file = importConfigInput.files?.[0];
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const parsed = JSON.parse(text);
+        config = normalizeConfig(parsed);
+        saveConfig("Konfiguration importiert");
+        renderAll();
+      } catch {
+        showSaveIndicator("Import fehlgeschlagen");
+      } finally {
+        importConfigInput.value = "";
+      }
+    });
+
+    resetConfigBtn.addEventListener("click", () => {
+      const confirmed = window.confirm("Lokale Grundkonfiguration wirklich auf Standard zurücksetzen?");
+      if (!confirmed) return;
+
+      config = normalizeConfig(defaultConfig);
+      saveConfig("Konfiguration zurückgesetzt");
+      renderAll();
+    });
+
+    themeToggle.addEventListener("change", () => {
+      applyTheme(themeToggle.checked ? "dark" : "light");
+    });
+
+    applyTheme(loadTheme());
+    renderAll();
+  </script>
+</body>
+</html>
